@@ -34,31 +34,71 @@
         </div>
         <span class="section-count">01 — 03</span>
       </div>
+
+      <!-- Contenedor con la lógica de Firestore -->
       <div class="songs-list">
-        <SongCard
-          v-for="(song, index) in songs"
-          :key="song.id"
-          :number="`0${index + 1}`"
-          :title="song.title"
-          :artist="song.artist"
-          :genre="song.genre"
-          :cover="song.cover"
-        />
+        <!-- 1. Estado de Carga -->
+        <div v-if="loading" class="state-message">
+          <p>Carregant dades des de Firestore...</p>
+        </div>
+
+        <!-- 2. Estado de Error -->
+        <div v-else-if="errorMessage" class="state-message error">
+          <p>{{ errorMessage }}</p>
+        </div>
+
+        <!-- 3. Estado sin datos (Lista Vacía) -->
+        <div v-else-if="songs.length === 0" class="state-message empty">
+          <p>No hi ha dades disponibles en aquest moment.</p>
+        </div>
+
+        <!-- 4. Renderizado de las canciones si hay datos -->
+        <template v-else>
+          <SongCard
+            v-for="(song, index) in songs"
+            :key="song.id"
+            :number="`0${index + 1}`"
+            :title="song.título || song.title"
+            :artist="song.artista || song.artist"
+            :genre="song.género || song.genre || song.álbum"
+            :cover="song.portada || song.cover"
+          />
+        </template>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '../firebase' // Asegúrate de que la ruta apunte correctamente a tu archivo firebase.js
 import SongCard from '../components/SongCard.vue'
 
-const songs = ref([
-  { id: 1, title: 'Give', artist: 'Sleep Token', álbum: 'Sundowning · 2019', cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=400&q=80' },
-  { id: 2, title: 'Concrete Jungle', artist: 'Bad Omens', álbum: 'OST · 2024', cover: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=400&q=80' },
-  { id: 3, title: 'Missilia Amori', artist: 'Ghost', álbum: 'Skeletá · 2025', cover: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=400&q=80' }
-])
+// 1. Estados reactivos requeridos por la práctica
+const songs = ref([])
+const loading = ref(true)
+const errorMessage = ref(null)
+
+// 2. Función para obtener las canciones de Firestore al montar el componente
+onMounted(async () => {
+  try {
+    // Si tu colección en Firestore se llama 'canciones', la consultamos aquí
+    const querySnapshot = await getDocs(collection(db, 'canciones'))
+    
+    // Mapeamos los datos recibidos asignando el ID del documento
+    songs.value = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+  } catch (error) {
+    console.error('Error al cargar datos de Firestore:', error)
+    errorMessage.value = 'No se ha podido cargar la información de la base de datos.'
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
