@@ -1,11 +1,29 @@
-<script setup></script>
-
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div id="app-container">
+    <!-- Componente propio 1: Header de la app -->
+    <AppHeader/>
+
+    <!-- RouterView renderiza la vista según la ruta actual -->
+    <main>
+      <RouterView/>
+    </main>
+  </div>
 </template>
 
-<style scoped></style>
+<script setup>
+import { RouterView } from 'vue-router'
+import AppHeader from './components/AppHeader.vue'
+</script>
+
+<style>
+/* Estilos globales */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+}
+
+#app-container {
+  min-height: 100vh;
+}
+</style>
