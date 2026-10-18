@@ -39,7 +39,7 @@
       <div class="songs-list">
         <!-- 1. Estado de Carga -->
         <div v-if="loading" class="state-message">
-          <p>Carregant dades des de Firestore...</p>
+          <p>Cargando datos desde Firestore...</p>
         </div>
 
         <!-- 2. Estado de Error -->
@@ -49,7 +49,7 @@
 
         <!-- 3. Estado sin datos (Lista Vacía) -->
         <div v-else-if="songs.length === 0" class="state-message empty">
-          <p>No hi ha dades disponibles en aquest moment.</p>
+          <p>No hay datos disponibles en este momento.</p>
         </div>
 
         <!-- 4. Renderizado de las canciones si hay datos -->
